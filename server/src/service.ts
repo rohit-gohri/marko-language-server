@@ -18,7 +18,7 @@ import { IConnection } from 'vscode-languageserver';
 import URI from "vscode-uri";
 
 
-const { loadMarkoCompiler } = require('./util/marko');
+import { loadMarkoCompiler } from './util/marko';
 
 var tagNameCharsRegExp = /[a-zA-Z0-9_.:-]/;
 var attrNameCharsRegExp = /[a-zA-Z0-9_#.:-]/;
@@ -124,7 +124,7 @@ async function getScopeAtPos(offset: number, text: string) {
 
                 // Tag Scope
                 // If tag name starts with '@' then it's an inner section that should be
-                // defined int he marko.json file
+                // defined in the marko.json file
                 console.log(`Looking in tagName: ${text.slice(startPos, tagNameEndPos)}`)
                 if (offset <= tagNameEndPos) {
                     return resolve({
@@ -186,7 +186,7 @@ async function getScopeAtPos(offset: number, text: string) {
 
 function getTagLibLookup(document: TextDocument) {
     const { path: dir } = URI.parse(document.uri);
-    return loadMarkoCompiler(dir).buildTaglibLookup(dir)
+    return loadMarkoCompiler(dir).buildTaglibLookup(dir);
 }
 
 function getTag(document:TextDocument, tagName: string) {

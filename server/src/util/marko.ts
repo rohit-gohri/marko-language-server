@@ -10,17 +10,24 @@ license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 * ------------------------------------------------------------------------------------------ */
 
-import defaultMarkoCompiler = require('marko/compiler');
-const markoCompilerCache: any = {};
-const resolveFrom = require('resolve-from');
-const lassoPackageRoot = require('lasso-package-root');
+import * as defaultMarkoCompiler from 'marko/compiler';
+import resolveFrom from 'resolve-from';
+import lassoPackageRoot from 'lasso-package-root';
+
 const versionRegExp = /^[0-9]+/;
+const markoCompilerCache: any = {};
 const versionCache: any = {};
 
-function loadMarkoCompiler(dir: string) {
+type markoCompilerType = typeof defaultMarkoCompiler;
+
+/**
+ * Use the project's own marko compiler if available and supported
+ * @param dir project directory
+ */
+function loadMarkoCompiler(dir: string): markoCompilerType {
     let rootDir = lassoPackageRoot.getRootDir(dir);
     if (!rootDir) {
-        return;
+        return defaultMarkoCompiler;
     }
 
     let markoCompiler = markoCompilerCache[rootDir];
@@ -85,7 +92,9 @@ function clearCache() {
     }
 }
 
-exports.loadMarkoCompiler = loadMarkoCompiler;
-exports.clearCache = clearCache;
-exports.defaultMarkoCompiler = defaultMarkoCompiler;
-exports.getMarkoMajorVersion = getMarkoMajorVersion;
+export {
+    loadMarkoCompiler,
+    clearCache,
+    defaultMarkoCompiler,
+    getMarkoMajorVersion,
+};
