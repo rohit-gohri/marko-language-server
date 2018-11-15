@@ -10,6 +10,7 @@ license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 * ------------------------------------------------------------------------------------------ */
 
+import {promisify} from 'util';
 import * as fs from 'fs';
 import { createParser } from 'htmljs-parser';
 import * as path from 'path';
@@ -20,8 +21,9 @@ import URI from "vscode-uri";
 
 import { loadMarkoCompiler } from './util/marko';
 
-var tagNameCharsRegExp = /[a-zA-Z0-9_.:-]/;
-var attrNameCharsRegExp = /[a-zA-Z0-9_#.:-]/;
+const readFile = promisify(fs.readFile);
+const tagNameCharsRegExp = /[a-zA-Z0-9_.:-]/;
+const attrNameCharsRegExp = /[a-zA-Z0-9_#.:-]/;
 
 const escapeStringRegexp = require('escape-string-regexp');
 
@@ -70,9 +72,9 @@ interface Scope {
     scopeType: ScopeType
 }
 
-function createTextDocument(filename: string): TextDocument {
+async function createTextDocument(filename: string): Promise<TextDocument> {
   const uri = URI.file(filename).toString();
-  const content = fs.readFileSync(filename, 'utf-8');
+  const content = await readFile(filename, 'utf-8');
   return TextDocument.create(uri, 'plaintext', 0, content);
 }
 
@@ -227,11 +229,11 @@ function findDefinitionForTag(document: TextDocument, { tagName }: Scope): Defin
     return definitions
 }
 
-function findDefinitionForAttrName(document: TextDocument, { tagName, data: attrName }: Scope) : Definition {
+async function findDefinitionForAttrName(document: TextDocument, { tagName, data: attrName }: Scope) : Promise<Definition> {
     let attrDef = getTagLibLookup(document).getAttribute(tagName, attrName);
     if (!attrDef || !attrDef.filePath) return null;
 
-    const attrDefDocument: TextDocument = createTextDocument(attrDef.filePath);
+    const attrDefDocument: TextDocument = await createTextDocument(attrDef.filePath);
 
     // Search for "@visible"
     const match = attrDefDocument.getText().match(new RegExp(`"@?${escapeStringRegexp(attrName)}"`));
@@ -254,13 +256,13 @@ function findDefinitionForAttrName(document: TextDocument, { tagName, data: attr
     };
 }
 
-function findDefinitionForAttrValue(document: TextDocument, { data: attrValue }: Scope) : Definition {
+async function findDefinitionForAttrValue(document: TextDocument, { data: attrValue }: Scope) : Promise<Definition> {
     const documentPath = URI.parse(document.uri).fsPath
     const componentJSPath = getComponentJSFilePath(documentPath)
 
     if (!getComponentJSFilePath) return null;
 
-    const componentJSDocument: TextDocument = createTextDocument(componentJSPath);
+    const componentJSDocument: TextDocument = await createTextDocument(componentJSPath);
     const handlerRegExp = new RegExp(`${attrValue}\\s*[(]|${attrValue}\\s*[:]`)
 
     const match = componentJSDocument.getText().match(handlerRegExp);
