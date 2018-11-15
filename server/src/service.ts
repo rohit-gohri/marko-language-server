@@ -10,8 +10,7 @@ license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 * ------------------------------------------------------------------------------------------ */
 
-import {promisify} from 'util';
-import * as fs from 'fs';
+import {promises as fs} from 'fs';
 import { createParser } from 'htmljs-parser';
 import * as path from 'path';
 import { CompletionList, Definition, Position, TextDocument, TextDocumentPositionParams, TextDocuments } from "vscode-languageserver/lib/main";
@@ -21,7 +20,6 @@ import URI from "vscode-uri";
 
 import { loadMarkoCompiler } from './util/marko';
 
-const readFile = promisify(fs.readFile);
 const tagNameCharsRegExp = /[a-zA-Z0-9_.:-]/;
 const attrNameCharsRegExp = /[a-zA-Z0-9_#.:-]/;
 
@@ -72,13 +70,23 @@ interface Scope {
     scopeType: ScopeType
 }
 
+async function fileExists(filepath: string){
+    try {
+        const stat = await fs.stat(filepath);
+        return stat.isFile;
+    }
+    catch(err) {
+        return false;
+    }
+}
+
 async function createTextDocument(filename: string): Promise<TextDocument> {
   const uri = URI.file(filename).toString();
-  const content = await readFile(filename, 'utf-8');
+  const content = await fs.readFile(filename, 'utf8');
   return TextDocument.create(uri, 'plaintext', 0, content);
 }
 
-function getComponentJSFilePath(documentPath: string): string | null {
+async function getComponentJSFilePath(documentPath: string): Promise<string | null> {
     const dir = path.dirname(documentPath);
     const possibleFileNames = [
         'component.js',
@@ -88,7 +96,7 @@ function getComponentJSFilePath(documentPath: string): string | null {
 
     for (const fileName of possibleFileNames) {
         const filePath = path.join(dir, fileName);
-        if (fs.existsSync(filePath)) {
+        if (await fileExists(filePath)) {
             return filePath;
         }
     }
@@ -196,7 +204,7 @@ function getTag(document:TextDocument, tagName: string) {
     return tagLibLookup.getTag(tagName);
 }
 
-function findDefinitionForTag(document: TextDocument, { tagName }: Scope): Definition {
+async function findDefinitionForTag(document: TextDocument, { tagName }: Scope): Promise<Definition> {
     const {
       template = false,
       renderer = false,
@@ -258,7 +266,7 @@ async function findDefinitionForAttrName(document: TextDocument, { tagName, data
 
 async function findDefinitionForAttrValue(document: TextDocument, { data: attrValue }: Scope) : Promise<Definition> {
     const documentPath = URI.parse(document.uri).fsPath
-    const componentJSPath = getComponentJSFilePath(documentPath)
+    const componentJSPath = await getComponentJSFilePath(documentPath)
 
     if (!getComponentJSFilePath) return null;
 
