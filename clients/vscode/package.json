@@ -22,7 +22,7 @@
     "url": "https://github.com/marko-js/marko-language-server/tree/master/clients/vscode/"
   },
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.26.0"
   },
   "categories": [
     "Programming Languages"
