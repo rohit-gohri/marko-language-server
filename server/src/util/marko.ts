@@ -12,8 +12,8 @@ https://opensource.org/licenses/MIT.
 
 import * as defaultMarkoCompiler from 'marko/compiler';
 // @ts-ignore
-import resolveFrom from 'resolve-from';
-import lassoPackageRoot from 'lasso-package-root';
+import * as resolveFrom from 'resolve-from';
+import * as lassoPackageRoot from 'lasso-package-root';
 
 const versionRegExp = /^[0-9]+/;
 const markoCompilerCache: any = {};
