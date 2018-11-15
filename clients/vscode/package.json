@@ -57,7 +57,13 @@
   "devDependencies": {
     "@types/mocha": "^2.2.42",
     "@types/node": "^10.3.1",
+    "escape-string-regexp": "^1.0.5",
+    "lasso-package-root": "^1.0.1",
+    "marko": "^4.7.4",
+    "resolve-from": "^4.0.0",
     "typescript": "^2.9.1",
-    "vscode": "^1.1.21"
+    "vscode": "^1.1.21",
+    "vscode-languageserver": "^4.0.0",
+    "vscode-uri": "^1.0.1"
   }
 }
