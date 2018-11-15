@@ -224,7 +224,7 @@ async function findDefinitionForTag(document: TextDocument, { tagName }: Scope):
         }
     }];
 
-    if (taglibId) {
+    if (taglibId && await fileExists(taglibId)) {
       definitions.push({
         uri: URI.file(taglibId).toString(),
         range: {
