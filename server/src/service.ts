@@ -13,12 +13,22 @@ https://opensource.org/licenses/MIT.
 import {promises as fs} from 'fs';
 import { createParser } from 'htmljs-parser';
 import * as path from 'path';
-import { CompletionList, Definition, Position, TextDocument, TextDocumentPositionParams, TextDocuments } from "vscode-languageserver/lib/main";
+import { 
+    CompletionList,
+    Definition,
+    Position,
+    TextDocument,
+    TextDocumentPositionParams,
+    TextDocuments,
+    CompletionItem,
+    CompletionItemKind,
+} from "vscode-languageserver/lib/main";
 import { IConnection } from 'vscode-languageserver';
+import { HandlerResult } from 'vscode-jsonrpc';
 import URI from "vscode-uri";
+import * as _ from 'lodash';
 
-
-import { loadMarkoCompiler } from './util/marko';
+import { loadMarkoCompiler, markoCompilerType } from './util/marko';
 
 const tagNameCharsRegExp = /[a-zA-Z0-9_.:-]/;
 const attrNameCharsRegExp = /[a-zA-Z0-9_#.:-]/;
@@ -204,6 +214,13 @@ function getTag(document:TextDocument, tagName: string) {
     return tagLibLookup.getTag(tagName);
 }
 
+function getUniqueTags(document: TextDocument) {
+    const tagLibLookup = getTagLibLookup(document);
+    return _.uniqBy(tagLibLookup.getTagsSorted(), (tag) => {
+        return tag.name;
+    })
+}
+
 async function findDefinitionForTag(document: TextDocument, { tagName }: Scope): Promise<Definition> {
     const {
       template = false,
@@ -295,6 +312,7 @@ async function findDefinitionForAttrValue(document: TextDocument, { data: attrVa
 }
 
 export class MLS {
+    private marko : markoCompilerType;
 
     constructor(private workspacePath: string, private connection: IConnection) {
         this.workspacePath;
@@ -302,10 +320,12 @@ export class MLS {
         this.connection.onShutdown(() => {
             this.dispose();
         });
+        this.marko = loadMarkoCompiler(workspacePath);
     }
 
     private setupLanguageFeatures() {
         this.connection.onCompletion(this.onCompletion.bind(this));
+        this.connection.onCompletionResolve(this.onCompletionResolve.bind(this));
         this.connection.onDefinition(this.onDefinition.bind(this));
     }
 
@@ -318,17 +338,48 @@ export class MLS {
         return;
     }
 
-
+    async onCompletionResolve(item: CompletionItem): Promise<HandlerResult<CompletionItem, void> > {
+        const autocomplete = item.data;
+        if (autocomplete !== undefined) {
+            item.documentation = autocomplete.map((ac: {snippet?: string, descriptionMoreURL: string}) => {
+                if (ac.snippet === undefined) return ''
+                return `Usage: ${ac.snippet}\n` +
+                    (ac.descriptionMoreURL ? `Read more at [link](${ac.descriptionMoreURL})` : '');
+            }).join('\n');
+        }
+        return item;
+    }
 
     async onCompletion(positionParams: TextDocumentPositionParams) {
-        console.log(positionParams)
-        return {
-            items:  [{
-                "label" : "I'm first"
-            }, {
-                "label": "I'm second"
-            }]
+        const doc = this.docManager.get(positionParams.textDocument.uri);
+        const endPos = positionParams.position;
+        endPos.character++;
+        const charAtPos = doc.getText({start: positionParams.position, end: endPos});
+        // TODO: look at https://github.com/marko-js/atom-language-marko
+        try {
+            console.log(charAtPos);
+            const uniqTags = getUniqueTags(doc);
+            
+            const result: CompletionList =  {
+                items: uniqTags.map((tag): CompletionItem => {
+                    return {
+                        label: tag.name,
+                        kind: CompletionItemKind.Snippet,
+                        // @ts-ignore
+                        data: tag.autocomplete,
+                    }
+                }),
+                isIncomplete: false,
+            };
+            return result;
         }
+        catch(err) {
+            console.error(err);
+        }
+        return {
+            items: [],
+            isIncomplete: false,
+        };
     }
 
     async onDefinition(positionParams: TextDocumentPositionParams) {
