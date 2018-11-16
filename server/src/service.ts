@@ -114,7 +114,7 @@ async function getScopeAtPos(offset: number, text: string) {
     let found: boolean = false;
     return new Promise(function(resolve: (tag: Scope | boolean) => any) {
         const parser = createParser({
-            onOpenTag: function(event: any) {
+            onOpenTag: function(event) {
                 const { pos: startPos, endPos, tagName, tagNameEndPos, attributes} = event;
 
                 // Don't process when the offset is not inside a tag or we found our tag already
@@ -188,7 +188,7 @@ async function getScopeAtPos(offset: number, text: string) {
                 console.log("================Finished!!!==============")
                 // TODO: Maybe this is not right? we need it to resolve somehow
                 if(!found) resolve(false)
-            }
+            },
         })
         parser.parse(text);
     })

@@ -94,6 +94,7 @@ function clearCache() {
 }
 
 export {
+    markoCompilerType,
     loadMarkoCompiler,
     clearCache,
     defaultMarkoCompiler,
