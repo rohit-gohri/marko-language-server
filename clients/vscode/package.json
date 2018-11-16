@@ -55,10 +55,12 @@
     "vscode-languageserver-types": "^3.8.1"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.118",
     "@types/mocha": "^2.2.42",
     "@types/node": "^10.3.1",
     "escape-string-regexp": "^1.0.5",
     "lasso-package-root": "^1.0.1",
+    "lodash": "^4.17.11",
     "marko": "^4.7.4",
     "resolve-from": "^4.0.0",
     "typescript": "^2.9.1",
