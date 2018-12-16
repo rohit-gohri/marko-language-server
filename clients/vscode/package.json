@@ -13,6 +13,7 @@
     "watch:client": "tsc -w -p .",
     "compile:server": "tsc -p ../../server/tsconfig.json",
     "watch:server": "tsc -w -p ../../server/tsconfig.json",
+    "lint:server": "tslint -c ../../server/tslint.json --project ../../server/tsconfig.json",
     "watch": "npm run watch:client & npm run watch:server",
     "compile": "npm run compile:client && npm run compile:server"
   },

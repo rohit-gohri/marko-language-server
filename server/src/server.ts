@@ -11,8 +11,8 @@ https://opensource.org/licenses/MIT.
 * ------------------------------------------------------------------------------------------ */
 
 import {
-    createConnection, TextDocuments, TextDocument,
-    Diagnostic, InitializeResult
+    createConnection, Diagnostic, InitializeResult,
+    TextDocument, TextDocuments,
 } from 'vscode-languageserver';
 
 import { Service } from './service';
@@ -30,7 +30,7 @@ let mls: Service;
 
 // Create a simple text document manager. The text document manager
 // supports full document sync only
-let documents: TextDocuments = new TextDocuments();
+const documents: TextDocuments = new TextDocuments();
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection);
@@ -42,22 +42,22 @@ connection.onInitialize((params): InitializeResult => {
     workspaceRoot = params.rootPath;
     mls = new Service(workspaceRoot, connection);
 
-    mls.initialize(workspaceRoot, documents)
+    mls.initialize(workspaceRoot, documents);
     return {
         capabilities: {
             // Tell the client that the server works in FULL text document sync mode
             textDocumentSync: documents.syncKind,
             // Tell the client that we have reference provider as well
             definitionProvider: true,
-            completionProvider: { resolveProvider: true, triggerCharacters: ['.', ':', '<', '"', '\'', '/', '@', '*'] },
-        }
-    }
+            completionProvider: { resolveProvider: true, triggerCharacters: [".", ":", "<", '"', "'", "/", "@", "*"] },
+        },
+    };
 });
 
 function validateTextDocument(textDocument: TextDocument): void {
-    let diagnostics: Diagnostic[] = [];
+    const diagnostics: Diagnostic[] = [];
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-};
+}
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
@@ -72,9 +72,10 @@ connection.onDidChangeConfiguration(() => {
     documents.all().forEach(validateTextDocument);
 });
 
-connection.onDidChangeWatchedFiles((_change) => {
+connection.onDidChangeWatchedFiles(() => {
+    // ({changes})
     // Monitored files have change in VSCode
-    connection.console.log('We recevied an file change event');
+    connection.console.log("We recevied an file change event");
 });
 
 // Listen on the connection

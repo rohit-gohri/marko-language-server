@@ -10,10 +10,10 @@ license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 * ------------------------------------------------------------------------------------------ */
 
+import * as lassoPackageRoot from 'lasso-package-root';
 import * as defaultMarkoCompiler from 'marko/compiler';
 // @ts-ignore
 import * as resolveFrom from 'resolve-from';
-import * as lassoPackageRoot from 'lasso-package-root';
 
 const versionRegExp = /^[0-9]+/;
 const markoCompilerCache: any = {};
@@ -26,7 +26,7 @@ type markoCompilerType = typeof defaultMarkoCompiler;
  * @param dir project directory
  */
 function loadMarkoCompiler(dir: string): markoCompilerType {
-    let rootDir = lassoPackageRoot.getRootDir(dir);
+    const rootDir = lassoPackageRoot.getRootDir(dir);
     if (!rootDir) {
         return defaultMarkoCompiler;
     }
@@ -34,17 +34,17 @@ function loadMarkoCompiler(dir: string): markoCompilerType {
     let markoCompiler = markoCompilerCache[rootDir];
     if (!markoCompiler) {
         // @ts-ignore
-        let markoCompilerPath = resolveFrom(rootDir, 'marko/compiler');
+        const markoCompilerPath = resolveFrom(rootDir, "marko/compiler");
         if (markoCompilerPath) {
             // @ts-ignore
-            var packageJsonPath = resolveFrom(rootDir, 'marko/package.json');
-            var pkg = require(packageJsonPath);
+            const packageJsonPath = resolveFrom(rootDir, "marko/package.json");
+            const pkg = require(packageJsonPath);
 
-            var version = pkg.version;
+            const version = pkg.version;
             if (version) {
-                var versionMatches = versionRegExp.exec(version);
+                const versionMatches = versionRegExp.exec(version);
                 if (versionMatches) {
-                    var majorVersion = parseInt(versionMatches[0], 10);
+                    const majorVersion = parseInt(versionMatches[0], 10);
                     if (majorVersion >= 3) {
                         markoCompiler = require(markoCompilerPath);
                     }
@@ -63,7 +63,7 @@ function getMarkoMajorVersion(dir: string) {
         return null;
     }
 
-    let rootDir = lassoPackageRoot.getRootDir(dir);
+    const rootDir = lassoPackageRoot.getRootDir(dir);
     if (!rootDir) {
         return;
     }
@@ -71,12 +71,12 @@ function getMarkoMajorVersion(dir: string) {
     let majorVersion = versionCache[rootDir];
     if (majorVersion === undefined) {
         // @ts-ignore
-        var packageJsonPath = resolveFrom(rootDir, 'marko/package.json');
+        const packageJsonPath = resolveFrom(rootDir, "marko/package.json");
         if (packageJsonPath) {
-            var pkg = require(packageJsonPath);
-            var version = pkg.version;
+            const pkg = require(packageJsonPath);
+            const version = pkg.version;
             if (version) {
-                var versionMatches = versionRegExp.exec(version);
+                const versionMatches = versionRegExp.exec(version);
                 if (versionMatches) {
                     majorVersion = parseInt(versionMatches[0], 10);
                 }
@@ -90,10 +90,11 @@ function getMarkoMajorVersion(dir: string) {
 }
 
 function clearCache() {
-    for (let dir in markoCompilerCache) {
-        let markoCompiler = markoCompilerCache[dir];
+    Object.keys(markoCompilerCache).forEach((dir) => {
+        const markoCompiler = markoCompilerCache[dir];
+        if (!markoCompiler) { return; }
         markoCompiler.clearCaches();
-    }
+    });
 }
 
 export {

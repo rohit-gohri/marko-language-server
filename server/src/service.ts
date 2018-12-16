@@ -10,19 +10,19 @@ license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 * ------------------------------------------------------------------------------------------ */
 
-import { 
-    TextDocumentPositionParams,
-    TextDocuments,
+import { IConnection } from 'vscode-languageserver';
+import {
     CompletionItem,
     CompletionList,
-    Definition
-} from "vscode-languageserver/lib/main";
-import { IConnection } from 'vscode-languageserver';
+    Definition,
+    TextDocumentPositionParams,
+    TextDocuments,
+} from 'vscode-languageserver/lib/main';
 
-import { MLS } from './util/MLS';
-import { loadMarkoCompiler, markoCompilerType } from './util/marko';
+import { onCompletion, onCompletionResolve } from './completion';
 import onDefinition from './definition';
-import { onCompletion, onCompletionResolve } from "./completion";
+import { loadMarkoCompiler, markoCompilerType } from './util/marko';
+import { MLS } from './util/MLS';
 
 /*
 NOTE: It would be nice to have a Cache for all the documents that have
@@ -35,42 +35,42 @@ For now let's just reparse every document we need to.
 // to get information from our template. It should have regions
 
 export class Service implements MLS {
-    marko : markoCompilerType;
-    docManager : TextDocuments;
+    public marko: markoCompilerType;
+    public docManager: TextDocuments;
 
     constructor(private workspacePath: string, private connection: IConnection) {
-        this.workspacePath;
-        this.setupLanguageFeatures()
+        this.workspacePath = workspacePath;
+        this.setupLanguageFeatures();
         this.connection.onShutdown(() => {
             this.dispose();
         });
         this.marko = loadMarkoCompiler(workspacePath);
     }
 
-    private setupLanguageFeatures() {
-        this.connection.onCompletion(this.onCompletion.bind(this));
-        this.connection.onCompletionResolve(this.onCompletionResolve.bind(this));
-        this.connection.onDefinition(this.onDefinition.bind(this));
-    }
-
-    initialize(workspacePath: string, docManager: TextDocuments) {
+    public initialize(workspacePath: string, docManager: TextDocuments) {
         console.log(workspacePath);
         this.docManager = docManager;
     }
 
-    dispose(): void {
+    public dispose(): void {
         return;
     }
 
-    async onCompletionResolve(item: CompletionItem) {
+    public async onCompletionResolve(item: CompletionItem) {
         return onCompletionResolve(item);
     }
 
-    async onCompletion(positionParams: TextDocumentPositionParams): Promise<CompletionList> {
+    public async onCompletion(positionParams: TextDocumentPositionParams): Promise<CompletionList> {
         return onCompletion(positionParams, this);
     }
 
-    async onDefinition(positionParams: TextDocumentPositionParams): Promise<Definition> {
+    public async onDefinition(positionParams: TextDocumentPositionParams): Promise<Definition> {
         return onDefinition(positionParams, this);
+    }
+
+    private setupLanguageFeatures() {
+        this.connection.onCompletion(this.onCompletion.bind(this));
+        this.connection.onCompletionResolve(this.onCompletionResolve.bind(this));
+        this.connection.onDefinition(this.onDefinition.bind(this));
     }
 }
