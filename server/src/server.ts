@@ -15,7 +15,8 @@ import {
   Diagnostic, InitializeResult
 } from 'vscode-languageserver';
 
-import { MLS } from './service';
+import { MLS } from './MLS';
+import { Service } from './service';
 
 let mls: MLS;
 
@@ -40,7 +41,7 @@ documents.listen(connection);
 let workspaceRoot: string;
 connection.onInitialize((params): InitializeResult => {
   workspaceRoot = params.rootPath;
-  mls = new MLS(workspaceRoot, connection);
+  mls = new Service(workspaceRoot, connection);
 
   mls.initialize(workspaceRoot, documents)
   return {

@@ -33,8 +33,10 @@ function loadMarkoCompiler(dir: string): markoCompilerType {
 
     let markoCompiler = markoCompilerCache[rootDir];
     if (!markoCompiler) {
+        // @ts-ignore
         let markoCompilerPath = resolveFrom(rootDir, 'marko/compiler');
         if (markoCompilerPath) {
+            // @ts-ignore
             var packageJsonPath = resolveFrom(rootDir, 'marko/package.json');
             var pkg = require(packageJsonPath);
 
@@ -68,6 +70,7 @@ function getMarkoMajorVersion(dir: string) {
 
     let majorVersion = versionCache[rootDir];
     if (majorVersion === undefined) {
+        // @ts-ignore
         var packageJsonPath = resolveFrom(rootDir, 'marko/package.json');
         if (packageJsonPath) {
             var pkg = require(packageJsonPath);

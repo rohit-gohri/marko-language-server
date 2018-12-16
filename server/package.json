@@ -37,7 +37,6 @@
     "@types/lodash": "^4.14.119",
     "@types/marko": "^4.6.0",
     "@types/node": "^10.3.1",
-    "@types/resolve-from": "0.0.18",
     "typescript": "^2.9.1"
   }
 }
