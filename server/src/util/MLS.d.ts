@@ -5,7 +5,7 @@ import {
     TextDocumentPositionParams,
     TextDocuments,
 } from "vscode-languageserver/lib/main";
-import { markoCompilerType } from './util/marko';
+import { markoCompilerType } from './marko';
 
 
 // This is exported seperately so as to not create a circular dependency

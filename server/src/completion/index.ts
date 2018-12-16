@@ -6,7 +6,7 @@ import {
 } from "vscode-languageserver/lib/main";
 
 import { getUniqueTags } from '../documents';
-import { MLS } from '../MLS';
+import { MLS } from '../util/MLS';
 
 export async function onCompletion(positionParams: TextDocumentPositionParams, mls: MLS): Promise<CompletionList> {
 	const doc = mls.docManager.get(positionParams.textDocument.uri);

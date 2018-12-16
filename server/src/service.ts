@@ -19,7 +19,7 @@ import {
 } from "vscode-languageserver/lib/main";
 import { IConnection } from 'vscode-languageserver';
 
-import { MLS } from './MLS';
+import { MLS } from './util/MLS';
 import { loadMarkoCompiler, markoCompilerType } from './util/marko';
 import onDefinition from './definition';
 import { onCompletion, onCompletionResolve } from "./completion";

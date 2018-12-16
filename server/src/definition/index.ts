@@ -14,7 +14,7 @@ import {
 	getTagLibLookup,
 	getComponentJSFilePath,
 } from '../documents'
-import { MLS } from "../MLS";
+import { MLS } from "../util/MLS";
 
 const tagNameCharsRegExp = /[a-zA-Z0-9_.:-]/;
 const attrNameCharsRegExp = /[a-zA-Z0-9_#.:-]/;
